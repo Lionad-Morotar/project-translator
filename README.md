@@ -8,6 +8,16 @@ Or Codebase Translator，项目翻译 Skill，批量翻译项目文档和代码�
 
 严肃的翻译仍然需要人工核查以及承担责任，所以此技能————翻译的目的，也是用于学习项目而不是将旧项目分叉（fork）。
 
+## 使用方法
+
+为了获得最可靠的结果，请在提示词前加上 `使用 project-translator 技能：`，如：
+
+```plaintext
+使用 project-translator 技能，<你的提示词>
+```
+
+这会明确触发技能并确保 AI 遵循文档化的模式。如果不加前缀，技能触发可能不一致，具体取决于你的提示词与技能描述关键词的匹配程度。
+
 ## 示例
 
 原项目：todo
@@ -100,7 +110,7 @@ node scripts/scan-files.js --project-path /path/to/your/project
 # 1. 扫描项目生成任务清单
 node scripts/scan-files.js --project-path <项目绝对路径>
 
-# 2. 读取文件内容（前20行）
+# 2. 读取文件内容（前 20 行）
 node scripts/read-file.js --file-path <项目绝对路径>/README.md --max-lines 20
 
 # 3. 翻译文件内容
@@ -145,7 +155,7 @@ node scripts/restore-upstream-version.js --project-path <项目绝对路径> --f
 node scripts/update-todo.js --project-path <项目绝对路径> --file-path README.md --status pending
 
 # 4. 重新翻译
-# （执行基本流程中的步骤2-5）
+# （执行基本流程中的步骤 2-5）
 ```
 
 #### 智能差异翻译模式（实验性）
@@ -187,11 +197,11 @@ node scripts/update-todo.js --project-path <项目绝对路径> --file-path READ
 
 ```csv
 term,action,translation,reason
-AI Agent,translate,智能体,AI Agent 翻译为智能体
-skill,keep,skill,在智能体领域，skill 是核心概念，保留英文术语
-Machine Learning,translate,机器学习,Machine Learning 翻译为机器学习
-Natural Language Processing,translate,自然语言处理,Natural Language Processing 翻译为自然语言处理
-API,translate,应用程序接口,API 翻译为应用程序接口
+AI Agent,translate, 智能体，AI Agent 翻译为智能体
+skill,keep,skill, 在智能体领域，skill 是核心概念，保留英文术语
+Machine Learning,translate, 机器学习，Machine Learning 翻译为机器学习
+Natural Language Processing,translate, 自然语言处理，Natural Language Processing 翻译为自然语言处理
+API,translate, 应用程序接口，API 翻译为应用程序接口
 ```
 
 **TOML 格式**（`glossary.toml`）

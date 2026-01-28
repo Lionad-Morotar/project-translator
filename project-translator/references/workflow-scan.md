@@ -2,10 +2,12 @@
 
 ## 操作步骤
 
-调用 `node scripts/scan-files.js` 扫描项目，生成待翻译文件清单：
+1. 调用 `node scripts/scan-files.js` 扫描项目，生成待翻译文件清单：
 ```bash
 node scripts/scan-files.js --project-path <项目绝对路径>
 ```
+
+2. 第一步结束之后，会生成任务清单，一般而言，Agent 应当根据任务清单，按照 [流程：翻译文件](./workflow-translate.md) 逐个完成翻译任务。
 
 ## 功能说明
 

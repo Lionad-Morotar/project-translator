@@ -4,13 +4,9 @@
  * 检测 Git pull 后被更新的已翻译文件
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
 const {
   loadConfig,
-  readTodoList,
-  checkFileModified,
+  writeTodoFile,
   detectModifiedFiles
 } = require('./utils');
 
@@ -32,12 +28,9 @@ if (!config) {
   process.exit(1);
 }
 
-// 从配置获取任务跟踪文件路径
-const taskTrackingFile = config.taskTrackingFile || '.todo/project-translation-task.md';
-const todoPath = path.join(path.resolve(projectPath), taskTrackingFile);
-
 try {
-  const modifiedFiles = detectModifiedFiles(projectPath, todoPath);
+  // 检测已完成任务对应的已翻译文件是否被修改
+  const modifiedFiles = detectModifiedFiles(projectPath, config.targetBranch);
 
   if (modifiedFiles.length === 0) {
     console.log('没有发现被更新的已翻译文件');
@@ -46,6 +39,9 @@ try {
     modifiedFiles.forEach(file => {
       console.log(file);
     });
+
+    // 生成新的任务清单文件
+    writeTodoFile(modifiedFiles, config.taskTrackingFile);
   }
 } catch (error) {
   console.error(`错误: ${error.message}`);

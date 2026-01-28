@@ -1,5 +1,6 @@
 {
   "targetLanguage": "中文",
+  "targetBranch": "upstream/master",
   "taskTrackingFile": ".todo/project-translation-task.md",
   "fileFilters": {
     "ignoreGitignore": true,

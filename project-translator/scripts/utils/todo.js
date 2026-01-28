@@ -3,6 +3,48 @@ const path = require('path');
 const { escapeRegExp } = require('./string');
 
 /**
+ * 确保存在任务清单文件
+ */
+function ensureTodoFileExists(todoPath) {
+  todoPath = path.resolve(todoPath);
+
+  // 确保目录存在
+  const todoDir = path.dirname(todoPath);
+  if (!fs.existsSync(todoDir)) {
+    fs.mkdirSync(todoDir, { recursive: true });
+  }
+  
+  // 确保文件存在
+  if (!fs.existsSync(todoPath)) {
+    fs.writeFileSync(todoPath, '', 'utf-8');
+  }
+}
+
+/**
+ * 写入任务清单文件
+ * @param {Array} files - 待翻译文件路径列表
+ * @param {string} outputPath - 输出路径
+ */
+function writeTodoFile(files, outputPath) {
+  outputPath = path.resolve(outputPath);
+
+  // 确保目录存在
+  const outputDir = path.dirname(outputPath);
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  let content = '# 待翻译文件清单\n\n';
+  files.forEach(file => {
+    content += `- [ ] ${file}\n`;
+  });
+
+  fs.writeFileSync(outputPath, content, 'utf-8');
+  console.log(`已生成待翻译清单: ${outputPath}`);
+  console.log(`共 ${files.length} 个文件待翻译`);
+}
+
+/**
  * 读取任务清单
  * @param {string} todoPath - 任务清单文件路径
  * @returns {Array} 已完成的文件列表
@@ -63,6 +105,8 @@ function updateTodoStatus(todoPath, filePath, status) {
 }
 
 module.exports = {
+  ensureTodoFileExists,
+  writeTodoFile,
   readTodoList,
   updateTodoStatus
 };

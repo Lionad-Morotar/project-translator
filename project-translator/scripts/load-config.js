@@ -12,12 +12,9 @@ const { loadConfig } = require('./utils');
 const args = process.argv.slice(2);
 const projectPathIndex = args.indexOf('--project-path');
 
-if (projectPathIndex === -1 || projectPathIndex + 1 >= args.length) {
-  console.error('错误: 缺少 --project-path 参数');
-  process.exit(1);
-}
-
-const projectPath = args[projectPathIndex + 1];
+const projectPath = (projectPathIndex === -1)
+  ? '.'
+  : args[projectPathIndex + 1];
 
 try {
   const config = loadConfig(projectPath);

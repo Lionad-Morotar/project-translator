@@ -1,18 +1,20 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const { isSupportedFile } = require('./file-filter');
 
 /**
  * 检查文件是否被修改
  * @param {string} projectPath - 项目路径
  * @param {string} filePath - 文件路径
+ * @param {string} targetBranch - 目标分支
  * @returns {boolean} 是否被修改
  */
-function checkFileModified(projectPath, filePath) {
+function checkFileModified(projectPath, filePath, targetBranch = 'upstream/master') {
   try {
     const relativePath = path.relative(projectPath, filePath);
     const diffOutput = execSync(
-      `git diff HEAD -- "${relativePath}"`,
+      `git diff ${targetBranch} -- "${relativePath}"`,
       { cwd: projectPath, encoding: 'utf-8' }
     );
 
@@ -23,25 +25,38 @@ function checkFileModified(projectPath, filePath) {
 }
 
 /**
- * 检测已修改的文件
+ * 检测已修改的文件（与目标分支对比）
  * @param {string} projectPath - 项目路径
- * @param {string} todoPath - 任务清单路径
+ * @param {string} targetBranch - 目标分支
  * @returns {Array} 已修改的文件列表
  */
-function detectModifiedFiles(projectPath, todoPath) {
-  const { readTodoList } = require('./todo');
-  const completedFiles = readTodoList(todoPath);
-  const modifiedFiles = [];
+function detectModifiedFiles(projectPath, targetBranch = 'upstream/master') {
+  try {
+    const { loadConfig } = require('./config');
+    const config = loadConfig(projectPath);
 
-  for (const file of completedFiles) {
-    if (fs.existsSync(file)) {
-      if (checkFileModified(projectPath, file)) {
-        modifiedFiles.push(file);
+    const diffOutput = execSync(
+      `git diff --name-only ${targetBranch}`,
+      { cwd: projectPath, encoding: 'utf-8' }
+    );
+
+    const changedFiles = diffOutput.trim().split('\n').filter(Boolean);
+    const modifiedFiles = [];
+
+    for (const file of changedFiles) {
+      const filePath = path.join(projectPath, file);
+      const filename = path.basename(file);
+
+      if (fs.existsSync(filePath) && isSupportedFile(filename, config)) {
+        modifiedFiles.push(filePath);
       }
     }
-  }
 
-  return modifiedFiles;
+    return modifiedFiles;
+  } catch (error) {
+    console.warn(`检测修改文件失败: ${error.message}`);
+    return [];
+  }
 }
 
 /**
@@ -49,10 +64,10 @@ function detectModifiedFiles(projectPath, todoPath) {
  * @param {string} projectPath - 项目路径
  * @param {string} filePath - 文件路径
  */
-function restoreUpstreamVersion(projectPath, filePath) {
+function restoreUpstreamVersion(projectPath, filePath, targetBranch = 'upstream/master') {
   try {
     const relativePath = path.relative(projectPath, filePath);
-    const command = `git checkout HEAD -- "${relativePath}"`;
+    const command = `git checkout ${targetBranch} -- "${relativePath}"`;
 
     execSync(command, { cwd: projectPath, stdio: 'inherit' });
     console.log(`已恢复上游版本: ${filePath}`);

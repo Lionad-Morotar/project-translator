@@ -12,7 +12,8 @@ const {
   isIgnoredByGitignore,
   shouldExcludeFile,
   shouldExcludeDir,
-  isSupportedFile
+  isSupportedFile,
+  writeTodoFile
 } = require('./utils');
 
 /**
@@ -51,28 +52,6 @@ function scanProject(projectPath, config) {
 
   scanDir(projectPath);
   return filesToTranslate.sort();
-}
-
-/**
- * 写入任务清单文件
- */
-function writeTodoFile(files, outputPath) {
-  outputPath = path.resolve(outputPath);
-
-  // 确保目录存在
-  const outputDir = path.dirname(outputPath);
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  let content = '# 待翻译文件清单\n\n';
-  files.forEach(file => {
-    content += `- [ ] ${file}\n`;
-  });
-
-  fs.writeFileSync(outputPath, content, 'utf-8');
-  console.log(`已生成待翻译清单: ${outputPath}`);
-  console.log(`共 ${files.length} 个文件待翻译`);
 }
 
 // 命令行参数解析

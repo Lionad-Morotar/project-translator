@@ -23,7 +23,7 @@ dependency:
 
 ### 更新翻译，或拉取更新然后翻译，或对齐上游
 
-如果匹配用户更新翻译需求（即将已翻译项目和 upstream 再次对齐，如拉取更新，然后再翻译项目的需求），执行以下流程：[流程：冲突处理流程](references/workflow-git-conflicts.md)
+如果匹配用户更新翻译需求（即将已翻译项目和上游（默认为 upstream/main）对齐，如拉取更新，然后再翻译项目的需求），执行以下流程：[流程：冲突处理流程](references/workflow-git-conflicts.md)
 
 ### 翻译项目（一般情况选这个）
 

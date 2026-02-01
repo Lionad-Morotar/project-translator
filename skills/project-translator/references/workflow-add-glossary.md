@@ -31,7 +31,7 @@ node scripts/link-glossary.js --file-path /path/to/frontend-terms.csv
 1. 在 `references/glossary/` 目录下创建新文件
 2. 选择 TOML 或 CSV 格式
 3. 文件命名格式：`<domain>.<ext>`（如 `frontend.toml`）
-4. 在 [references/glossary.md](references/glossary.md) 中添加术语表说明
+4. 在 [references/glossary.md](./references/glossary.md) 中添加术语表说明
 
 ## 术语表格式
 
@@ -73,7 +73,7 @@ hook,keep,,
 
 ## 更新术语表索引
 
-在 [references/glossary.md](references/glossary.md) 中添加术语表说明：
+在 [references/glossary.md](./references/glossary.md) 中添加术语表说明：
 
 ```markdown
 - 前端领域: `glossary/frontend.toml` (TOML) | 前端领域的术语表，触发条件: 文件路径包含 "src"、"components"、"ui" 等关键词
@@ -84,7 +84,7 @@ hook,keep,,
 术语表加载逻辑（由 `node scripts/load-glossary.js` 自动处理）：
 
 1. 根据当前翻译文件的路径和文件名判断所属领域
-2. 从 [references/glossary.md](references/glossary.md) 读取可用术语表列表
+2. 从 [references/glossary.md](./references/glossary.md) 读取可用术语表列表
 3. 根据触发条件匹配对应的术语表
 4. 加载术语表文件并输出格式化的规则供智能体参考
 

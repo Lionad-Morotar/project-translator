@@ -4,12 +4,6 @@ domain = "agent"
 description = "智能体领域的术语表"
 
 [[rules]]
-term = "skill"
-action = "keep"
-translation = "skill"
-reason = "在智能体领域，skill 是核心概念，保留英文术语"
-
-[[rules]]
 term = "agent"
 action = "translate"
 translation = "智能体"

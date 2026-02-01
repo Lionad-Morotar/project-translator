@@ -8,6 +8,12 @@ Or Codebase Translator，项目翻译 Skill，批量翻译项目文档和代码�
 
 严肃的翻译仍然需要人工核查以及承担责任，所以此技能————翻译的目的，也是用于学习项目而不是将旧项目分叉（fork）。
 
+## 安装
+
+```bash
+npx skill lionad-morotar/project-translator
+```
+
 ## 使用方法
 
 为了获得最可靠的结果，请在提示词前加上 `使用 project-translator 技能：`，如：
@@ -19,6 +25,9 @@ Or Codebase Translator，项目翻译 Skill，批量翻译项目文档和代码�
 这会明确触发技能并确保 AI 遵循文档化的模式。如果不加前缀，技能触发可能不一致，具体取决于你的提示词与技能描述关键词的匹配程度。
 
 ## 示例
+
+![workflow](./public/workflow.png)
+
 
 原项目：todo
 新项目：todo

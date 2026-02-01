@@ -84,8 +84,9 @@ reason = "agent 翻译为智能体"
 ## 自定义术语表
 
 如需添加自定义术语表：
-
 1. 在 `references/glossary/` 目录下创建新文件
 2. 选择 TOML 或 CSV 格式
 3. 文件命名格式：`<domain>.<ext>`（如 `frontend.toml`）
-4. 在 `references/glossary.md` 中添加术语表说明
+4. 在此文件中添加术语表说明
+
+或告诉 Agent 术语表的路径，Agent 会自动使用 `scripts/link-glossary.js` 链接术语表文件到 `references/glossary/*` 中。

@@ -22,7 +22,7 @@ function ensureTodoFileExists(todoPath) {
 
 /**
  * 写入任务清单文件
- * @param {Array} files - 待翻译文件路径列表
+ * @param {Array} files - 文件列表（string 或 { path, translated }）
  * @param {string} outputPath - 输出路径
  */
 function writeTodoFile(files, outputPath) {
@@ -34,14 +34,29 @@ function writeTodoFile(files, outputPath) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  let content = '# 待翻译文件清单\n\n';
-  files.forEach(file => {
-    content += `- [ ] ${file}\n`;
+  const items = (Array.isArray(files) ? files : [])
+    .map(file => {
+      if (typeof file === 'string') return { path: file, translated: false };
+      if (file && typeof file === 'object') {
+        const filePath = file.path || file.filePath;
+        if (typeof filePath === 'string' && filePath) return { path: filePath, translated: Boolean(file.translated) };
+      }
+      return null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.path.localeCompare(b.path));
+
+  const translatedCount = items.filter(i => i.translated).length;
+  const toTranslateCount = items.length - translatedCount;
+
+  let content = '# 项目翻译任务清单\n\n';
+  items.forEach(item => {
+    content += `- [${item.translated ? 'x' : ' '}] ${item.path}\n`;
   });
 
   fs.writeFileSync(outputPath, content, 'utf-8');
   console.log(`已生成待翻译清单: ${outputPath}`);
-  console.log(`共 ${files.length} 个文件待翻译`);
+  console.log(`项目内涉及 ${items.length} 个文件，其中 ${translatedCount} 个文件已翻译，剩余 ${toTranslateCount} 个文件需要翻译`);
 }
 
 /**

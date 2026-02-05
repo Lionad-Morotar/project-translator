@@ -6,6 +6,7 @@ const git = require('./git');
 const validator = require('./validator');
 const file = require('./file');
 const parser = require('./parser');
+const langdetect = require('./langdetect');
 
 module.exports = {
   ...config,
@@ -15,5 +16,6 @@ module.exports = {
   ...git,
   ...validator,
   ...file,
-  ...parser
+  ...parser,
+  ...langdetect
 };

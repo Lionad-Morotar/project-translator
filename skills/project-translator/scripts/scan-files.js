@@ -13,15 +13,16 @@ const {
   shouldExcludeFile,
   shouldExcludeDir,
   isSupportedFile,
+  isFileTranslated,
   writeTodoFile
 } = require('./utils');
 
 /**
- * 递归扫描项目，返回所有待翻译文件的绝对路径
+ * 递归扫描项目，返回所有支持文件及其翻译状态
  */
 function scanProject(projectPath, config) {
   projectPath = path.resolve(projectPath);
-  const filesToTranslate = [];
+  const files = [];
 
   const ignoreGitignore = config?.fileFilters?.ignoreGitignore || false;
   const gitignorePatterns = ignoreGitignore ? readGitignore(projectPath) : [];
@@ -44,46 +45,50 @@ function scanProject(projectPath, config) {
         }
 
         if (isSupportedFile(entry.name, config)) {
-          filesToTranslate.push(fullPath);
+          const translated = isFileTranslated(fullPath, config);
+          files.push({ path: fullPath, translated });
         }
       }
     }
   }
 
   scanDir(projectPath);
-  return filesToTranslate.sort();
+  return files.sort((a, b) => a.path.localeCompare(b.path));
 }
 
-// 命令行参数解析
-const args = process.argv.slice(2);
-const projectPathIndex = args.indexOf('--project-path');
+function runCli() {
+  const args = process.argv.slice(2);
+  const projectPathIndex = args.indexOf('--project-path');
 
-if (projectPathIndex === -1 || projectPathIndex + 1 >= args.length) {
-  console.error('错误: 缺少 --project-path 参数');
-  process.exit(1);
+  if (projectPathIndex === -1 || projectPathIndex + 1 >= args.length) {
+    console.error('错误: 缺少 --project-path 参数');
+    process.exit(1);
+  }
+
+  const projectPath = args[projectPathIndex + 1];
+
+  const config = loadConfig(projectPath);
+  if (!config) {
+    console.error('错误: 无法加载配置文件');
+    process.exit(1);
+  }
+
+  const taskTrackingFile = config.taskTrackingFile || '.todo/project-translation-task.md';
+  const defaultOutputPath = path.join(path.resolve(projectPath), taskTrackingFile);
+
+  if (!fs.existsSync(projectPath)) {
+    console.error(`错误: 项目路径不存在: ${projectPath}`);
+    process.exit(1);
+  }
+
+  const files = scanProject(projectPath, config);
+  writeTodoFile(files, defaultOutputPath);
 }
 
-const projectPath = args[projectPathIndex + 1];
-
-// 加载配置
-const config = loadConfig(projectPath);
-if (!config) {
-  console.error('错误: 无法加载配置文件');
-  process.exit(1);
+if (require.main === module) {
+  runCli();
 }
 
-// 从配置获取任务跟踪文件路径
-const taskTrackingFile = config.taskTrackingFile || '.todo/project-translation-task.md';
-const defaultOutputPath = path.join(path.resolve(projectPath), taskTrackingFile);
-
-// 验证项目路径存在
-if (!fs.existsSync(projectPath)) {
-  console.error(`错误: 项目路径不存在: ${projectPath}`);
-  process.exit(1);
-}
-
-// 扫描项目
-const files = scanProject(projectPath, config);
-
-// 写入任务清单文件
-writeTodoFile(files, defaultOutputPath);
+module.exports = {
+  scanProject
+};

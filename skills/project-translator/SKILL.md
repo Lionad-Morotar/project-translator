@@ -1,6 +1,6 @@
 ---
 name: project-translator
-description: 项目翻译，翻译文档和代码文件，支持批量翻译；更新翻译；拉取更新翻译；对齐上游；添加自定义术语表；
+description: 项目翻译，翻译文档和代码文件，支持批量翻译；更新翻译；拉取更新翻译；对齐上游；添加自定义术语表；查找未翻译文件；
 dependency:
   system:
     - npm install
@@ -20,7 +20,7 @@ dependency:
 - 上游：待翻译项目的 upstream/main
 - 任务清单：待翻译项目的 .todo/project-translation-task.md
 - 查找暂存区：`git status --porcelain`
-- 检查文件是否翻译：读取文件前 20 行快速判断文件是否已经翻译 
+- 检查文件是否翻译：执行脚本[检查文件是否翻译](./scripts/utils/langdetect.js) 的 isFileTranslated 函数，入参(filePath, config)，出参 boolean
 - 目标语言：中文（严谨流畅、术语精准）
 - 文件路径：使用绝对路径
 
@@ -31,6 +31,11 @@ dependency:
 3. 识别用户意图，匹配功能清单中的一项功能，然后执行
 
 ## 功能清单
+
+### 【查找项目内未翻译文件】
+
+1. 执行脚本[扫描项目](./scripts/scan-files.js)，生成任务清单
+2. 根据任务清单，输出扫描结果：“项目内涉及 X 个文件，其中 Y 个文件已翻译，剩余 Z 个文件需要翻译”
 
 ### 【更新翻译】有时用户表示为拉取更新再翻译，或“对齐上游”
 

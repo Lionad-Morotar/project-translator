@@ -41,7 +41,7 @@ function extractEnglishWordsBySpaces(text) {
     if (!original) continue;
     const normalized = normalizeWordForDict(original);
     if (!normalized) continue;
-    if (normalized.length >= 4) {
+    if (normalized.length >= 3) {
       if (!map.has(normalized)) {
         map.set(normalized, original);
       }

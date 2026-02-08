@@ -1,99 +1,32 @@
 # Git 冲突处理流程
 
-## 概述
+## 上下文说明
 
-在执行 `git pull` 更新代码后，如果上游更新了已翻译的文件，需要重新翻译。
+- 差异清单：`<项目根目录>/.todo/git-diff-commit.md`
 
 ## 处理步骤
 
-根据配置 `experiment.translateFromDiff` 的值，有两种处理模式：
-
-- **常规模式**（默认）：恢复上游版本，重新翻译整个文件
-- **智能差异翻译模式**（实验性）：基于 diff 和上下文进行增量翻译，保留已有翻译
-
-无论选择哪种模式，都需要注意，标点符号以目标译文语言的符号为准。
-
-## 1. 检测被更新的已翻译文件
-
-调用 `node scripts/check-git-conflicts.js` 检测哪些已翻译文件在 git pull 后被修改：
-```bash
-node scripts/check-git-conflicts.js --project-path <项目绝对路径>
-```
-
-该脚本会：
-- 比较本地翻译版本与上游版本的差异
-- 将上游修改过的文件记录在待办清单文件
-
-## 2. 选择处理模式
-
-对每一个任务，执行 [流程：翻译文件](./workflow-translate.md)，但在翻译开始前，根据配置中的 `experiment.translateFromDiff` 值：
-- 如果为 `false` 或未配置：执行常规模式钩子（见下方）
-- 如果为 `true`：执行智能差异翻译模式钩子（见下方）
-
-## 常规模式
-
-### 2.1 恢复上游版本
-
-对于需要重新翻译的文件，调用 `node scripts/restore-upstream-version.js` 恢复上游版本：
-```bash
-node scripts/restore-upstream-version.js --project-path <项目绝对路径> --file-path <文件绝对路径>
-```
-
-钩子执行后，后继续执行翻译流程 [流程：翻译文件](./workflow-translate.md)
-
-### 2.2 标记为待翻译
-
-调用 `node scripts/update-todo.js` 将恢复的文件标记为待翻译：
-```bash
-node scripts/update-todo.js --project-path <项目绝对路径> --file-path <文件绝对路径> --status pending
-```
-
-### 2.3 重新翻译
-
-按照"翻译文件流程"的步骤，对恢复的文件重新执行翻译。
-
-## 智能差异翻译模式（实验性）
-
-除非配置打开了 `experiment.translateFromDiff`，否则禁止使用智能差异翻译模式。
-
-<!-- ### 2.1 生成 diff 和上下文
-
-调用 `node scripts/generate-diff.js` 生成文件的变更信息和上下文：
-```bash
-node scripts/generate-diff.js --project-path <项目绝对路径> --file-path <文件绝对路径>
-```
-
-该脚本会：
-- 获取上游版本（HEAD）和本地版本的差异
-- 对每个变更行提取原文和译文中的上下文（前后 200 字符）
-- 输出结构化的 diff 数据供智能体使用
-
-### 2.2 语义化补全
-
-智能体根据 diff 和上下文，执行语义化补全：
-1. 读取已翻译的文件内容
-2. 分析 diff 中的变更（新增、修改、删除）
-3. 结合上下文翻译变更内容
-4. 保持已有翻译不变，仅更新变更部分
-
-详见 [智能差异翻译流程](workflow-diff-translate.md)
-
-### 2.3 写入更新后的文件
-
-调用 `node scripts/write-file.js` 写入更新后的内容：
-```bash
-node scripts/write-file.js --file-path <文件绝对路径> --content <更新后的内容>
-```
-
-### 2.4 更新进度
-
-调用 `node scripts/update-todo.js` 标记任务为完成：
-```bash
-node scripts/update-todo.js --project-path <项目绝对路径> --file-path <文件绝对路径> --status completed -->
-```
-
-## 注意事项
-
-- 常规模式简单可靠，但会丢失已有翻译，需要重新翻译整个文件
-- 智能差异翻译模式更高效，保留已有翻译，但属于实验性功能，可能存在边界情况处理不完善的问题
-- 如果用户对智能差异翻译失败或结果不满意，可以回退到常规模式重新处理
+1. 首先，确保你在 `translation` 分支
+  1.1 使用 `git fetch` 从 origin 和 upstream 拉取更新
+  1.2 读取当前 commit 的 git tag，如 “v-<source-commit-id>”，了解当前 commit 是从 upstream 的哪一个 commit 翻译过来的版本
+  1.3 如果没有 git tag，默认 `source-commit-id` 为 origin/main 对应的 commit-id
+  1.4 确定远端更新从哪个 commit 到哪个 commit，默认是从 `source-commit-id` 到 upstream/main，如果确定不了则询问用户
+2. 输出一句话：“正在获取差异”
+  2.1 执行指令 `git log <source-commit-id>..upstream/main --reverse --pretty=format:"%h %s"` 获取有差异的 commit，写入差异清单，每行为一个 commit 对应的 markdown 任务。
+3. 循环：
+  3.1 读取差异清单的一项，如 “- [] <commit-id> <commit-message>”
+  3.2 执行指令 `git show <commit-id> --stat` 以了解哪些文件在这次 commit 涉及了增删改
+  3.3 执行指令 `git show <commit-id>` 以了解具体的修改内容
+  3.4 根据具体的修改内容：
+    3.4.1 如果是新增文件，同样的，翻译并新增
+    3.4.2 如果是删除，同样的删除文件
+    3.4.3 如果是少量修改（只涉及少数几行或 10 处以内 diff），直接根据差异对项目对应的已翻译文件进行小浮动修改
+    3.4.4 如果是大量修改，执行指令 `git show upstream/main:<file-path>` 获取该文件所有变更并重新翻译
+  3.5 从差异清单删除此行 commit-id
+  3.6 根据差异清单剩余行数，输出一句话：“让我继续完美执行剩下的<剩余任务数量>条任务”
+  3.7 循环，直到差异清单内容为空
+4. 输出一句话，“差异清单为空，任务结束”
+5. 清理项目
+  5.1 将所有改动提交到 translation 分支，“git commit -am 'chore: translation'”
+  5.2 将 origin/main 快进到 upstream/main
+  5.3 切换会 translation 分支

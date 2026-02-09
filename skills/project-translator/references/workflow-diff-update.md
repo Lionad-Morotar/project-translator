@@ -8,7 +8,7 @@
 
 1. 首先，确保你在 `translation` 分支
   1.1 使用 `git fetch` 从 origin 和 upstream 拉取更新
-  1.2 读取当前 commit 的 git tag，如 “v-<source-commit-id>”，了解当前 commit 是从 upstream 的哪一个 commit 翻译过来的版本
+  1.2 执行指令 `git describe --tags --abbrev=0`，读取当前 commit 的 git tag，如 “v-<source-commit-id>”，了解当前 commit 是从 upstream 的哪一个 commit 翻译过来的版本
   1.3 如果没有 git tag，默认 `source-commit-id` 为 origin/main 对应的 commit-id
   1.4 默认 `target-commit-id` 为 upstream/main
   1.5 执行指令 `git show <source-commit-id> --oneline -s` 检查项目分支 HEAD 情况

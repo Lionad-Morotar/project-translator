@@ -11,7 +11,10 @@
   1.2 读取当前 commit 的 git tag，如 “v-<source-commit-id>”，了解当前 commit 是从 upstream 的哪一个 commit 翻译过来的版本
   1.3 如果没有 git tag，默认 `source-commit-id` 为 origin/main 对应的 commit-id
   1.4 默认 `target-commit-id` 为 upstream/main
-  1.5 目前为止确定了更新翻译是从 `source-commit-id` 到 `target-commit-id`
+  1.5 执行指令 `git show <source-commit-id> --oneline -s` 检查项目分支 HEAD 情况
+  1.7 根据项目是否从 `source-commit-id` 到 `target-commit-id` 有需要更新的差异:
+    1.7.1 有差异，目前为止确定了更新翻译是从 `source-commit-id` 到 `target-commit-id`，继续下一步
+    1.7.2 若无差异，输出一句话：“当前项目的翻译已经是最新的啦！”，直接结束任务
 2. 输出一句话：“正在获取差异”
   2.1 执行指令 `git log <source-commit-id>..upstream/main --reverse --pretty=format:"%h %s"` 获取有差异的 commit，写入差异清单，每行为一个 commit 对应的 markdown 任务。
 3. 循环：
